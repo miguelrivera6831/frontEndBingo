@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jugar</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css">
+    <style>
+        body {
+            background-color: #000000;
+            font-family: Arial, sans-serif;
+            color: #d6e66e;
+            text-align: center;
+        }
+
+        head, .footer, #container, container, site-header {
+            background-color: #000000;
+            font-family: Arial, sans-serif;
+            color: #d6e66e;
+        }
+
+        .navbar-nav .nav-link {
+            background-color: #000000 !important;
+            color: #d6e66e !important;
+        }
+
+        .navbar {
+            background-color: #000000 !important;
+            color: #d6e66e !important;
+        }
+
+        .navbar-brand {
+            color: #d6e66e !important;
+        }
+
+        h1 {
+            font-size: 24px;
+            color: #d6e66e;
+        }
+
+        h2 {
+            font-size: 20px;
+            color: #d6e66e;
+        }
+
+        p {
+            font-size: 16px;
+            color: #d6e66e;
+        }
+
+        /* Add more CSS styles as needed */
+    </style>
+</head>
+<body>
+    <header>
+        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
+            <div class="container">
+                <a class="navbar-brand" href="/Index">Inicio</a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
+                        aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
+                    <ul class="navbar-nav flex-grow-1">
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" href="/Privacy">Privacidad</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </header>
+    <br />
+    <div class="container">
+        <form method="post">
+            <div class="form-group">
+                <label for="NumeroCelular">Número de Celular:</label>
+                <input type="tel" id="NumeroCelular" name="NumeroCelular" class="form-control" required disabled>
+            </div>
+
+            <div class="form-group">
+                <label for="Nombre">Nombre:</label>
+                <input type="text" id="Nombre" name="Nombre" class="form-control" required disabled>
+            </div>
+
+            <div class="form-group">
+                <label for="NumeroJugadas">Numero de Jugadas:</label>
+                <select id="NumeroJugadas" name="NumeroJugadas" class="form-control" required>
+                    <option value="0"></option>
+                    <option value="1">Una Jugada</option>
+                    <option value="2">Dos Jugadas</option>
+                    <option value="3">Tres Jugadas</option>
+                    <option value="4">Cuatro Jugadas</option>
+                    <option value="5">Cinco Jugadas</option>
+                    <option value="6">Seis Jugadas</option>
+                    <option value="7">Siete Jugadas</option>
+                    <option value="8">Ocho Jugadas</option>
+                    <option value="9">Nueve Jugadas</option>
+                    <option value="10">Diez Jugadas</option>
+                </select>
+            </div>
+
+            <div id="jugadasContainer">
+                <!-- Dynamic text boxes for plays will be added here -->
+            </div>
+            <br />
+            <div class="form-group">
+                <button type="submit" id="btnEnviarJugada" class="btn btn-primary">Enviar Jugada</button>
+            </div>
+            <br />
+            <br />
+            <div id="mensaje"></div>
+            <br />
+        </form>
+    </div>
+
+    <script>
+        document.getElementById("btnEnviarJugada").addEventListener("click", function (event) {
+            event.preventDefault();
+
+            var numerosJugadas = [];
+            for (var i = 1; i <= parseInt(document.getElementById("NumeroJugadas").value) * 6; i++) {
+                var numeroJugada = document.getElementById("Jugada" + i).value;
+                if (numeroJugada) {
+                    numerosJugadas.push(numeroJugada);
+                }
+            }
+
+            var tipoJugada = "una jugada";
+            if (numerosJugadas.length > 6) {
+                tipoJugada = "dos jugadas";
+            }
+
+            var mensaje = "Número de Celular: " + document.getElementById("NumeroCelular").value +
+                ", Números de jugadas: " + numerosJugadas.join(", ") +
+                ". Ha seleccionado " + tipoJugada + ".";
+
+            document.getElementById("mensaje").textContent = mensaje;
+        });
+    </script>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+  
+            var numeroCelular = localStorage.getItem('numeroCelular');
+
+
+                fetch('https://bingorapido.com/webapp/api/Usuarios/TraerUsuarioPorCelular', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        usuarioID: numeroCelular
+                    })
+                })
+                    .then(response => {
+                        if (response.ok) {
+                            return response.json();
+                        }
+                        throw new Error('Network response was not ok.');
+                    })
+                    .then(data => {
+                        document.getElementById("NumeroCelular").value = numeroCelular;
+                        document.getElementById("Nombre").value = "Bienvenido: " + data.nombre + " empecemos a jugar";
+
+                        document.getElementById("NumeroCelular").disabled = true;
+                        document.getElementById("Nombre").disabled = true;
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                    });
+            
+        });
+    </script>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            document.getElementById("NumeroJugadas").addEventListener("change", function () {
+                var numeroJugadas = parseInt(this.value) * 6;
+                var jugadasContainer = document.getElementById("jugadasContainer");
+
+                jugadasContainer.innerHTML = "";
+
+                var cajasPorFila = 6;
+                var filas = Math.ceil(numeroJugadas);
+
+                for (var fila = 0; fila < filas; fila++) {
+                    var filaDiv = document.createElement("div");
+                    filaDiv.className = "row";
+
+                    for (var i = 1; i <= cajasPorFila; i++) {
+                        var jugadaIndex = fila * cajasPorFila + i;
+
+                        if (jugadaIndex <= numeroJugadas) {
+                            var divFormGroup = document.createElement("div");
+                            divFormGroup.className = "form-group col";
+
+                            var label = document.createElement("label");
+                            label.setAttribute("for", "Jugada" + jugadaIndex);
+                            label.textContent = "Jugada " + jugadaIndex + ":";
+
+                            var input = document.createElement("input");
+                            input.type = "text";
+                            input.id = "Jugada" + jugadaIndex;
+                            input.name = "Jugada" + jugadaIndex;
+                            input.className = "form-control";
+
+                            divFormGroup.appendChild(label);
+                            divFormGroup.appendChild(input);
+
+                            filaDiv.appendChild(divFormGroup);
+                        }
+                    }
+
+                    jugadasContainer.appendChild(filaDiv);
+                }
+            });
+        });
+    </script>
+</body>
+</html>

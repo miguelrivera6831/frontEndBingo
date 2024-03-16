@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bingo Online</title>
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        body {
+            background-color: #000000;
+            font-family: Arial, sans-serif;
+            color: #d6e66e;
+            text-align: center;
+        }
+
+        .container {
+            background-color: #000000;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 50px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .btn-lg {
+            font-size: 18px;
+            padding: 15px 30px;
+            border-radius: 25px;
+            margin-top: 20px;
+        }
+
+        .btn-info {
+            background-color: #38a1db;
+            color: #ffffff;
+        }
+
+        .btn-success {
+            background-color: #00a859;
+            color: #ffffff;
+        }
+
+        .text-danger {
+            color: #dc3545;
+        }
+
+        @media only screen and (max-width: 600px) {
+            .container {
+                margin-top: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <h1 class="text-center mt-5">Bienvenido al juego de Bingo Online</h1>
+
+            <form method="post" action="Login" class="mt-5">
+                <div class="text-danger"></div>
+                <div class="form-group">
+                    <label for="celular">Numero Celular:</label>
+                    <input type="text" id="celular" name="Celular" class="form-control" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="password">Contraseña:</label>
+                    <input type="password" id="password" name="Password" class="form-control" required>
+                </div>
+
+                <div class="text-center">
+                    <button type="submit" class="btn btn-info btn-lg rounded-pill" id="ingresoBtn">INICIA SESION</button>
+                </div>
+
+                <div class="text-center">
+                    <button type="submit" class="btn btn-success btn-lg rounded-pill" id="registroBtn">REGISTRARSE</button>
+                </div>
+
+                <div class="form-group">
+                    <label for="respuesta" id="mensajeRespuesta" class="text-danger"></label>
+                </div>
+                <br>
+                <div id="mensajeError" class="text-danger"></div>
+
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.getElementById('registroBtn').addEventListener('click', function (event) {
+        event.preventDefault();
+        window.location.href = '/webfront/inscripcion.html';
+    });
+</script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        document.getElementById('ingresoBtn').addEventListener('click', function (event) {
+            event.preventDefault();
+
+            var usuario = document.getElementById('celular').value;
+            var password = document.getElementById('password').value;
+
+            localStorage.setItem('numeroCelular', usuario);           
+
+            var apiUrlValidar = "https://bingorapido.com/webapp/api/Usuarios/validarUsuario";
+
+            var data = {
+                celular: usuario,
+                clave: password
+            };
+
+            fetch(apiUrlValidar, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data),
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Error en la solicitud a la API');
+                }
+                return response.text(); // Cambiado a text() en lugar de json()
+            })
+            .then(apiResponse => {
+                console.log('Respuesta de la API:', apiResponse);
+
+                if (apiResponse === "NO EXISTE") {
+                    document.getElementById('mensajeError').innerText = 'Usuario o contraseña incorrectos';
+                } else if (apiResponse === "OK") {
+                    // Manejar el caso especial de "OK"
+                    console.log('Usuario validado correctamente');
+                    window.location.href = '/webfront/Jugar.html';
+                    // Puedes redirigir o realizar otras acciones según tus necesidades
+                } else {
+                    window.location.href = '/webfront/Home.html';
+                }
+            })
+            .catch(error => {
+                console.error('Error al llamar a la API:', error);
+                document.getElementById('mensajeError').innerText = 'Usuario o contraseña incorrectos';
+                // Aquí maneja el caso de error, por ejemplo, redirigiendo a la página de error
+                // window.location.href = '/Error';
+            });
+        });
+    });
+</script>
+
+
+
+</body>
+</html>
